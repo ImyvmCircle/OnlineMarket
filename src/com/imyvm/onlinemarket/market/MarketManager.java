@@ -127,6 +127,7 @@ public class MarketManager extends BukkitRunnable {
 //                List<MarketItem> items = plugin.database.getMarketItems(0, itemCount, null);
 //                for (MarketItem item : items) {
 //                    if (!plugin.eco.withdraw(item.getPlayer(), plugin.config.market_placement_fee)) {
+        //  ? 扣除玩家保管费时可能会导致玩家钱数为负，应该加判断钱是否足够？
 //                        fail++;
 //                        plugin.logger.info(I18n.format("log.info.placement_fee_fail",
 //                                item.getId(), item.getPlayer().getName(), "Not enough money"));
