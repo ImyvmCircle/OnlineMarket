@@ -11,7 +11,10 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.BlockStateMeta;
+import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -115,25 +118,41 @@ public class MarketManager extends BukkitRunnable {
 
     @Override
     public void run() {
-        if (plugin.config.market_placement_fee > 0)/*&&
-                System.currentTimeMillis() - plugin.config.variablesConfig.market_placement_fee_timestamp >= 86400000) {
-            plugin.config.variablesConfig.market_placement_fee_timestamp = System.currentTimeMillis();*/{
-            int itemCount = plugin.database.getMarketItemCount();
-            if (itemCount > 0) {
-                int fail = 0;
-                List<MarketItem> items = plugin.database.getMarketItems(0, itemCount, null);
-                for (MarketItem item : items) {
-                    if (!plugin.eco.withdraw(item.getPlayer(), plugin.config.market_placement_fee)) {
-                        fail++;
-                        plugin.logger.info(I18n.format("log.info.placement_fee_fail",
-                                item.getId(), item.getPlayer().getName(), "Not enough money"));
+//        if (plugin.config.market_placement_fee > 0)/*&&
+//                System.currentTimeMillis() - plugin.config.variablesConfig.market_placement_fee_timestamp >= 86400000) {
+//            plugin.config.variablesConfig.market_placement_fee_timestamp = System.currentTimeMillis();*/{
+//            int itemCount = plugin.database.getMarketItemCount();
+//            if (itemCount > 0) {
+//                int fail = 0;
+//                List<MarketItem> items = plugin.database.getMarketItems(0, itemCount, null);
+//                for (MarketItem item : items) {
+//                    if (!plugin.eco.withdraw(item.getPlayer(), plugin.config.market_placement_fee)) {
+//                        fail++;
+//                        plugin.logger.info(I18n.format("log.info.placement_fee_fail",
+//                                item.getId(), item.getPlayer().getName(), "Not enough money"));
+//                    }
+//                }
+//                /*if (fail < itemCount) {
+//                    plugin.balanceAPI.deposit((itemCount - fail) * plugin.config.market_placement_fee);
+//                }*/
+//                plugin.logger.info(I18n.format("log.info.placement_fee", itemCount, fail));
+//            }
+//        }
+    }
+
+    public static boolean containsBook(ItemStack item) {
+        if (item.hasItemMeta() && item.getItemMeta() instanceof BlockStateMeta) {
+            BlockStateMeta blockStateMeta = (BlockStateMeta) item.getItemMeta();
+            if (blockStateMeta.hasBlockState() && blockStateMeta.getBlockState() instanceof InventoryHolder) {
+                InventoryHolder inventoryHolder = (InventoryHolder) blockStateMeta.getBlockState();
+                for (ItemStack itemStack : inventoryHolder.getInventory().getContents()) {
+                    if (itemStack != null && itemStack.getType() != Material.AIR &&
+                            itemStack.hasItemMeta() && itemStack.getItemMeta() instanceof BookMeta) {
+                        return true;
                     }
                 }
-                /*if (fail < itemCount) {
-                    plugin.balanceAPI.deposit((itemCount - fail) * plugin.config.market_placement_fee);
-                }*/
-                plugin.logger.info(I18n.format("log.info.placement_fee", itemCount, fail));
             }
         }
+        return false;
     }
 }
