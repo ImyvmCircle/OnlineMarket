@@ -67,6 +67,7 @@ user:
     not_int: "Not a valid integer"
     not_double: "Not a valid number"
     command_exception: "Internal server error. Unable to run command."
+    shulker_box_contains_book: "You can't sell shulker box contains book"
     bad_enum: "Not valid for enum type: %s. Values: %s"
     unknown_item: "unknown item: %s"
   warn:
