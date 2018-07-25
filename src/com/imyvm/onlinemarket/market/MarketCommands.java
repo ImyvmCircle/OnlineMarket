@@ -24,7 +24,7 @@ public class MarketCommands extends CommandReceiver {
         return "market";
     }
 
-    @SubCommand(value = "sell", permission = "heh.offer")
+    @SubCommand(value = "sell", permission = "heh.sell")
     public void offer(CommandSender sender, Arguments args) {
         if (args.length() == 3) {
             Player player = asPlayer(sender);

@@ -1,0 +1,15 @@
+language: "en_US"
+marketPlaySound: true
+marketBroadcast: true
+# default 120 sec
+marketBroadcastCooldown: 120
+#offer slots limit
+marketSlot:
+    default: 10
+    builder: 15
+database:
+    provider: sqlite
+    connection:
+        autoscan: true
+        package: com.imyvm.olinemarket.database
+        file: onlinemarket.db
