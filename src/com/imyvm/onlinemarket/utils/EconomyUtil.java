@@ -1,8 +1,8 @@
 package com.imyvm.onlinemarket.utils;
 
-import com.imyvm.onlinemarket.Main;
 import com.imyvm.onlinemarket.I18n;
-import cat.nyaa.nyaacore.utils.ReflectionUtils;
+import com.imyvm.onlinemarket.Main;
+import cat.nyaa.nyaacore.utils.ItemStackUtils;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.economy.EconomyResponse;
 import org.bukkit.OfflinePlayer;
@@ -57,51 +57,53 @@ public class EconomyUtil {
         return rsp.transactionSuccess();
     }
 
-    public synchronized Optional<Utils.GiveStat> transaction(OfflinePlayer buyer, OfflinePlayer seller, ItemStack item, double price, double tax) {
+    public synchronized Optional<MiscUtils.GiveStat> transaction(OfflinePlayer buyer, OfflinePlayer seller, ItemStack item, double price, double tax) {
         int step = 0;
         try {
             if (buyer.equals(seller)) {
-                Utils.GiveStat stat = Utils.giveItem(buyer, item);
+                MiscUtils.GiveStat stat = MiscUtils.giveItem(buyer, item);
                 return Optional.of(stat);
             }
-            if (!plugin.eco.withdraw(buyer, price + tax)) {
+            EconomyResponse withdraw = eco.withdrawPlayer(buyer, price + tax);
+            if (!withdraw.transactionSuccess()) {
+                plugin.getLogger().info(I18n.format("log.info.withdraw_fail", buyer.getName(), seller.getName(), MiscUtils.getItemName(item), price, tax, withdraw.errorMessage));
                 return Optional.empty();
             }
             step = 1;
-            if (!plugin.eco.deposit(seller, price)) {
-                throw new RuntimeException("");
+            EconomyResponse deposit = eco.depositPlayer(seller, price);
+            if (!deposit.transactionSuccess()) {
+                throw new RuntimeException(deposit.errorMessage);
             }
             step = 2;
-            /*if (tax > 0.0D) {
-                HamsterEcoHelperTransactionApiEvent event = new HamsterEcoHelperTransactionApiEvent(tax);
-                plugin.getServer().getPluginManager().callEvent(event);
-            }*/
+            if (tax > 0.0D) {
+                //plugin.systemBalance.deposit(tax, plugin);
+            }
             step = 3;
-            Utils.GiveStat stat = Utils.giveItem(buyer, item);
+            MiscUtils.GiveStat stat = MiscUtils.giveItem(buyer, item);
             return Optional.of(stat);
         } catch (Exception e) {
-            plugin.getLogger().warning(I18n.format("log.error.transaction_fail", buyer.getName(), seller.getName(), Utils.getItemName(item), price, tax));
+            plugin.getLogger().warning(I18n.format("log.error.transaction_fail", buyer.getName(), seller.getName(), MiscUtils.getItemName(item), price, tax));
             try {
-                plugin.getLogger().warning(I18n.format("log.error.transaction_fail_dump", ReflectionUtils.convertItemStackToJson(item)));
+                plugin.getLogger().warning(I18n.format("log.error.transaction_fail_dump", ItemStackUtils.itemToJson(item)));
             } catch (Exception r) {
+                r.printStackTrace();
                 plugin.getLogger().warning("failed to dump item json");
             }
             e.printStackTrace();
             switch (step) {
                 case 3:
                     plugin.getLogger().warning(I18n.format("log.error.transaction_fail_rollback_tax", tax));
-                    /*HamsterEcoHelperTransactionApiEvent rollbackEvent = new HamsterEcoHelperTransactionApiEvent(-tax);
-                    plugin.getServer().getPluginManager().callEvent(rollbackEvent);*/
+                    //plugin.systemBalance.withdraw(tax, plugin);
                     //fallthrough
                 case 2:
-                    boolean status2Seller = plugin.eco.withdraw(seller, price);
+                    EconomyResponse status2Seller = eco.withdrawPlayer(seller, price);
                     plugin.getLogger().warning(I18n.format("log.error.transaction_fail_rollback_money",
-                            seller.getName(), -price, status2Seller));
+                            seller.getName(), -price, status2Seller.transactionSuccess(), status2Seller.errorMessage));
                     //fallthrough
                 case 1:
-                    boolean status1Buyer = plugin.eco.deposit(buyer, price + tax);
+                    EconomyResponse status1Buyer = eco.depositPlayer(buyer, price + tax);
                     plugin.getLogger().warning(I18n.format("log.error.transaction_fail_rollback_money",
-                            buyer.getName(), price + tax, status1Buyer));
+                            buyer.getName(), price + tax, status1Buyer.transactionSuccess(), status1Buyer.errorMessage));
                 case 0:
                     break;
                 default:

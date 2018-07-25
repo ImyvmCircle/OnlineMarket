@@ -3,7 +3,7 @@ package com.imyvm.onlinemarket;
 import com.imyvm.onlinemarket.market.MarketListener;
 import com.imyvm.onlinemarket.market.MarketManager;
 import com.imyvm.onlinemarket.utils.EconomyUtil;
-import com.imyvm.onlinemarket.utils.database.Database;
+import com.imyvm.onlinemarket.database.Database;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.logging.Logger;
@@ -40,6 +40,7 @@ public class Main extends JavaPlugin {
     @Override
     public void onDisable() {
         config.save();
+        database.database.close();
     }
 
     public void reload() {

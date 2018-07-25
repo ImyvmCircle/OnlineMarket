@@ -1,11 +1,11 @@
 package com.imyvm.onlinemarket.market;
 
 
-import com.imyvm.onlinemarket.Main;
 import com.imyvm.onlinemarket.I18n;
-import com.imyvm.onlinemarket.utils.Utils;
-import com.imyvm.onlinemarket.utils.database.tables.MarketItem;
+import com.imyvm.onlinemarket.Main;
 import cat.nyaa.nyaacore.Message;
+import com.imyvm.onlinemarket.database.MarketItem;
+import com.imyvm.onlinemarket.utils.MiscUtils;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -46,18 +46,34 @@ public class MarketManager extends BukkitRunnable {
         return false;
     }
 
+    public static boolean containsBook(ItemStack item) {
+        if (item.hasItemMeta() && item.getItemMeta() instanceof BlockStateMeta) {
+            BlockStateMeta blockStateMeta = (BlockStateMeta) item.getItemMeta();
+            if (blockStateMeta.hasBlockState() && blockStateMeta.getBlockState() instanceof InventoryHolder) {
+                InventoryHolder inventoryHolder = (InventoryHolder) blockStateMeta.getBlockState();
+                for (ItemStack itemStack : inventoryHolder.getInventory().getContents()) {
+                    if (itemStack != null && itemStack.getType() != Material.AIR &&
+                            itemStack.hasItemMeta() && itemStack.getItemMeta() instanceof BookMeta) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
     public int getPlayerSlot(Player player) {
         int slot = 0;
         for (String group : plugin.config.marketSlot.keySet()) {
             int tmp = plugin.config.marketSlot.get(group);
-            if (player.hasPermission("heh.sell." + group) && tmp > slot) {
+            if (player.hasPermission("heh.offer." + group) && tmp > slot) {
                 slot = tmp;
             }
         }
         return slot;
     }
 
-    public boolean sell(Player player, ItemStack item, double unit_price) {
+    public boolean offer(Player player, ItemStack item, double unit_price) {
         if (getPlayerSlot(player) <= plugin.database.getMarketPlayerItemCount(player)) {
             player.sendMessage(I18n.format("user.market.not_enough_slot"));
             return false;
@@ -71,7 +87,7 @@ public class MarketManager extends BukkitRunnable {
             }
         }
         long id = plugin.database.marketOffer(player, item, unit_price);
-        plugin.logger.info(I18n.format("log.info.market_offer", id, Utils.getItemName(item), item.getAmount(), unit_price, player.getName()));
+        plugin.logger.info(I18n.format("log.info.market_offer", id, MiscUtils.getItemName(item), item.getAmount(), unit_price, player.getName()));
         if (plugin.config.marketBroadcast && (System.currentTimeMillis() - lastBroadcast) > (plugin.config.marketBroadcastCooldown * 1000)) {
             lastBroadcast = System.currentTimeMillis();
             new Message("").append(I18n.format("user.market.broadcast"), item).broadcast();
@@ -116,44 +132,31 @@ public class MarketManager extends BukkitRunnable {
         }
     }
 
+
     @Override
     public void run() {
-//        if (plugin.config.market_placement_fee > 0)/*&&
-//                System.currentTimeMillis() - plugin.config.variablesConfig.market_placement_fee_timestamp >= 86400000) {
-//            plugin.config.variablesConfig.market_placement_fee_timestamp = System.currentTimeMillis();*/{
-//            int itemCount = plugin.database.getMarketItemCount();
-//            if (itemCount > 0) {
-//                int fail = 0;
-//                List<MarketItem> items = plugin.database.getMarketItems(0, itemCount, null);
-//                for (MarketItem item : items) {
-//                    if (!plugin.eco.withdraw(item.getPlayer(), plugin.config.market_placement_fee)) {
-        //  ? 扣除玩家保管费时可能会导致玩家钱数为负，应该加判断钱是否足够？
-//                        fail++;
-//                        plugin.logger.info(I18n.format("log.info.placement_fee_fail",
-//                                item.getId(), item.getPlayer().getName(), "Not enough money"));
-//                    }
-//                }
-//                /*if (fail < itemCount) {
-//                    plugin.balanceAPI.deposit((itemCount - fail) * plugin.config.market_placement_fee);
-//                }*/
-//                plugin.logger.info(I18n.format("log.info.placement_fee", itemCount, fail));
-//            }
-//        }
-    }
-
-    public static boolean containsBook(ItemStack item) {
-        if (item.hasItemMeta() && item.getItemMeta() instanceof BlockStateMeta) {
-            BlockStateMeta blockStateMeta = (BlockStateMeta) item.getItemMeta();
-            if (blockStateMeta.hasBlockState() && blockStateMeta.getBlockState() instanceof InventoryHolder) {
-                InventoryHolder inventoryHolder = (InventoryHolder) blockStateMeta.getBlockState();
-                for (ItemStack itemStack : inventoryHolder.getInventory().getContents()) {
-                    if (itemStack != null && itemStack.getType() != Material.AIR &&
-                            itemStack.hasItemMeta() && itemStack.getItemMeta() instanceof BookMeta) {
-                        return true;
+        /*
+        if (plugin.config.market_placement_fee > 0 &&
+                System.currentTimeMillis() - plugin.config.variablesConfig.market_placement_fee_timestamp >= 86400000) {
+            plugin.config.variablesConfig.market_placement_fee_timestamp = System.currentTimeMillis();
+            int itemCount = plugin.database.getMarketItemCount();
+            if (itemCount > 0) {
+                int fail = 0;
+                List<MarketItem> items = plugin.database.getMarketItems(0, itemCount, null);
+                for (MarketItem item : items) {
+                    if (!plugin.eco.withdraw(item.getPlayer(), plugin.config.market_placement_fee)) {
+                        fail++;
+                        plugin.logger.info(I18n.format("log.info.placement_fee_fail",
+                                item.id, item.getPlayer().getName(), "Not enough money"));
                     }
                 }
+                if (fail < itemCount) {
+                    plugin.systemBalance.deposit((itemCount - fail) * plugin.config.market_placement_fee, plugin);
+                }
+                plugin.logger.info(I18n.format("log.info.placement_fee", itemCount, fail));
             }
         }
-        return false;
+        */
     }
+
 }

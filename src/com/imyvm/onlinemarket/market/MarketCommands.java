@@ -1,9 +1,9 @@
 package com.imyvm.onlinemarket.market;
 
 import com.imyvm.onlinemarket.Main;
-import com.imyvm.onlinemarket.utils.database.tables.MarketItem;
 import cat.nyaa.nyaacore.CommandReceiver;
 import cat.nyaa.nyaacore.LanguageRepository;
+import com.imyvm.onlinemarket.database.MarketItem;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
@@ -11,9 +11,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import java.text.DecimalFormat;
-
-public class MarketCommands extends CommandReceiver<Main> {
+public class MarketCommands extends CommandReceiver {
     private Main plugin;
 
     public MarketCommands(Object plugin, LanguageRepository i18n) {
@@ -26,8 +24,8 @@ public class MarketCommands extends CommandReceiver<Main> {
         return "market";
     }
 
-    @SubCommand(value = "sell", permission = "heh.sell")
-    public void sell(CommandSender sender, Arguments args) {
+    @SubCommand(value = "sell", permission = "heh.offer")
+    public void offer(CommandSender sender, Arguments args) {
         if (args.length() == 3) {
             Player player = asPlayer(sender);
             double price = 0.0;
@@ -38,7 +36,11 @@ public class MarketCommands extends CommandReceiver<Main> {
             }
             ItemStack item = getItemInHand(sender);
             if (item != null && item.getType() != Material.AIR && item.getAmount() > 0) {
-                if (plugin.marketManager.sell(player, item, price)) {
+                if (MarketManager.containsBook(item)) {
+                    msg(sender, "user.error.shulker_box_contains_book");
+                    return;
+                }
+                if (plugin.marketManager.offer(player, item, price)) {
                     player.getInventory().setItemInMainHand(new ItemStack(Material.AIR));
                 }
                 return;
@@ -71,7 +73,7 @@ public class MarketCommands extends CommandReceiver<Main> {
             int slot = player.getInventory().firstEmpty();
             if (slot >= 0 && player.getInventory().getItem(slot) == null) {
                 msg(player, "user.market.offered", item.getPlayer().getName());
-                msg(player, "user.market.unit_price", item.getUnitPrice());
+                msg(player, "user.market.unit_price", item.unitPrice);
                 player.getInventory().setItem(slot, item.getItemStack(1));
             }
         }

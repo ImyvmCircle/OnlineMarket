@@ -1,7 +1,6 @@
 package com.imyvm.onlinemarket.market;
 
 import com.imyvm.onlinemarket.Main;
-import com.imyvm.onlinemarket.Main;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryAction;

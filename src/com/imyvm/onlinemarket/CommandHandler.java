@@ -1,5 +1,7 @@
 package com.imyvm.onlinemarket;
 
+import cat.nyaa.nyaacore.database.DatabaseUtils;
+import cat.nyaa.nyaacore.database.RelationalDB;
 import com.imyvm.onlinemarket.market.MarketCommands;
 import cat.nyaa.nyaacore.CommandReceiver;
 import cat.nyaa.nyaacore.LanguageRepository;
@@ -14,7 +16,7 @@ import org.bukkit.inventory.ItemStack;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CommandHandler extends CommandReceiver<Main> {
+public class CommandHandler extends CommandReceiver {
 
     private final Main plugin;
     @SubCommand("market")
@@ -110,5 +112,24 @@ public class CommandHandler extends CommandReceiver<Main> {
             p.getWorld().dropItem(p.getEyeLocation(), s);
         }
         plugin.database.clearTemporaryStorage(p);
+    }
+
+    @SubCommand(value = "dump", permission = "heh.admin")
+    public void databaseDump(CommandSender sender, Arguments args) {
+        String to = args.next();
+        RelationalDB todb =  DatabaseUtils.get(to).connect();
+        RelationalDB fromdb = plugin.database.database;
+        DatabaseUtils.dumpDatabaseAsync(plugin, fromdb, todb, (cls, r) -> {
+            if (cls != null) {
+                msg(sender, "internal.info.dump.ing", cls.getName(), to, r);
+            } else {
+                fromdb.close();
+                if(r == 0){
+                    msg(sender, "internal.info.dump.finished", to);
+                } else {
+                    msg(sender, "internal.error.command_exception");
+                }
+            }
+        });
     }
 }

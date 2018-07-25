@@ -1,9 +1,12 @@
 package com.imyvm.onlinemarket.utils;
 
-import com.imyvm.onlinemarket.Main;
 import cat.nyaa.nyaacore.utils.InventoryUtils;
+import com.imyvm.onlinemarket.I18n;
+import com.imyvm.onlinemarket.Main;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.librazy.nyaautils_lang_checker.LangKey;
@@ -13,7 +16,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.function.Function;
 
-public class Utils {
+public class MiscUtils {
     public static final Random random = new Random();
 
     public static <T> int randomIdWithWeight(List<T> items, Function<T, Double> weightOperator) {
@@ -21,8 +24,8 @@ public class Utils {
 
         double[] weightList = new double[items.size()];
         weightList[0] = weightOperator.apply(items.get(0));
-        for (int i = 1; i< items.size(); i++) {
-            weightList[i] = weightList[i-1] + weightOperator.apply(items.get(i));
+        for (int i = 1; i < items.size(); i++) {
+            weightList[i] = weightList[i - 1] + weightOperator.apply(items.get(i));
         }
 
         double rnd = random.nextDouble() * weightList[weightList.length - 1];
@@ -44,22 +47,17 @@ public class Utils {
         return min + random.nextInt(max - min + 1);
     }
 
-    @LangKey(type = LangKeyType.SUFFIX) public enum GiveStat {
-        INVENTORY,
-        ENDER_CHEST,
-        TEMPORARY_STORAGE
-    }
-
     /**
      * Put Item into player's inventory/ender chest/temporary-storage-zone
+     *
      * @return 1: put into player's inventory
-     *         2: put into ender chest
-     *         3: put into temporary storage
+     * 2: put into ender chest
+     * 3: put into temporary storage
      */
     public static GiveStat giveItem(OfflinePlayer player, ItemStack item) {
         if (player.isOnline()) {
             Player p = Bukkit.getPlayer(player.getUniqueId());  // Refresh the Player object to ensure
-                                                                // we hold latest Player object associated to
+            // we hold latest Player object associated to
             if (InventoryUtils.addItem(p, item)) {
                 return GiveStat.INVENTORY;
             }
@@ -87,5 +85,29 @@ public class Utils {
             itemName += "(" + item.getType().name() + ":" + item.getDurability() + ")";
         }
         return itemName;
+    }
+
+    public static Material getMaterial(String name) {
+        return Material.matchMaterial(name);
+    }
+
+    @SuppressWarnings("deprecation")
+    public static Material getMaterial(String name, CommandSender sender) {
+        Material m = Material.matchMaterial(name, false);
+        if (m == null) {
+            m = Material.matchMaterial(name, true);
+            if (m != null) {
+                m = Bukkit.getUnsafe().fromLegacy(m);
+                sender.sendMessage(I18n.instance.getFormatted("user.warn.legacy_name", name, m.toString()));
+            }
+        }
+        return m;
+    }
+
+    @LangKey(type = LangKeyType.SUFFIX)
+    public enum GiveStat {
+        INVENTORY,
+        ENDER_CHEST,
+        TEMPORARY_STORAGE
     }
 }

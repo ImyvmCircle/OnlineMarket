@@ -11,7 +11,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$USER_HOME$/Downloads/NyaaUtilsLangChecker-master-v1.87.jar!/" />
+          <root url="jar://$USER_HOME$/OneDrive/文档/imyvm/plugins/Vault.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -20,7 +20,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$USER_HOME$/Downloads/NyaaCore-v3.0.51-mc1.12.jar!/" />
+          <root url="jar://$USER_HOME$/OneDrive/文档/imyvm/plugins/NyaaUtilsLangChecker-master-v1.96.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -29,21 +29,21 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$USER_HOME$/Downloads/spigot-1.12.1-R0.1-SNAPSHOT-b1394.jar!/" />
+          <root url="jar://$USER_HOME$/OneDrive/Download/NyaaCore-v6.0.175-mc1.13.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$USER_HOME$/OneDrive/Download/spigot-1.13-R0.1-SNAPSHOT-b1737.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$USER_HOME$/Downloads/spigot-1.12.1-R0.1-SNAPSHOT-b1394.jar!/" />
+          <root url="jar://$USER_HOME$/OneDrive/Download/spigot-1.13-R0.1-SNAPSHOT-b1737.jar!/" />
         </SOURCES>
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$USER_HOME$/Downloads/Vault.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
       </library>
     </orderEntry>
   </component>

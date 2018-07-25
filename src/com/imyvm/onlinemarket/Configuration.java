@@ -24,8 +24,7 @@ public class Configuration extends PluginConfigure {
     @Serializable
     public int market_offer_fee = 10;
     @Serializable
-    public int market_placement_fee = 1;
-
+    public int database_version = 0;
 
     public Map<String, Integer> marketSlot = new HashMap<>();
 
